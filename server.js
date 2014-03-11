@@ -1,54 +1,32 @@
+//Startup engine - nodeJS authentication API
+//https://github.com/smof/node_authn_api
+
 //require statgements
 var express = require('express');
 var app = express();
+var fileManager = require('./routes/fileManager.js');
 
-//Authentication function ////////////////////////////////////////////////////////////
-authenticate = function(req, res) {
-
-	//set false
-	var authenticated = false;
-	
-	//set response obj
-	var responseObj = {};
-	
-	//pull in POST request body
-        //requestBody = JSON.stringify(req.body);
-
-        //logging
-        console.log('Authentication request received');
-        
-        //split out body attributes
-        requestUser = req.body.user;
-        requestPassword = req.body.password;
-        
-        //noddy conditional check // switch to mongo or 
-        if (requestUser === "smof" && requestPassword === "password") {
-        
-        	authenticated = true;
-        
-        }
-        
-        //update response object
-        responseObj.authenticated = authenticated;
-        res.send(responseObj);
-
-        console.log('Response sent');
-};
-///////////////////////////////////////////////////////////////////////////////////////
-
+//imports
+var authenticator = require('./routes/authenticator.js');
 
 //Express API setup ///////////////////////////////////////////////////////////////////
+
 //for parsing POST payloads
 app.use(express.bodyParser());
-
 //authenticates user - url maps to function
-app.post('/authenticate', authenticate);
+app.post('/authenticate', authenticator.authenticate);
 
 //set listener port
-var port = 3000;
+var port = 3001;
 
 //start listener on HTTP port
 app.listen(port);
+console.log('Starting...');
+
+//check that the users file json exists and has hashed passwords in it
+console.log('Checking users file is hashed');
+//This converts any newly added clear text passwords in to hash
+fileManager.secureFile();
 
 //startup log
 console.log('Authentication API Listening on port ' + port + '...');
